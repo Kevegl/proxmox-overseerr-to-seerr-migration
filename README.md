@@ -181,6 +181,7 @@ echo "--- Update to $(git describe --tags) successful! ---"
 
 3. **Make it executable and run it:**
 ```bash
+# Make the script executable
 chmod +x /opt/overseerr/update.sh
 
 # To update in the future, just run:
