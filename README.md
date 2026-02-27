@@ -1,5 +1,5 @@
 # 🚀 Overseerr to Seerr Migration Guide (Proxmox LXC)
-Last validated: February 2026 | Node.js v22 | Seerr v3.0.1
+Last validated: February 27, 2026 | Node.js v22 | Seerr v3.1.0
 
 This guide provides a proven, step-by-step walkthrough to migrate from the deprecated **Overseerr** to its active fork **Seerr** within a Proxmox LXC environment.
 
@@ -14,6 +14,7 @@ This guide provides a proven, step-by-step walkthrough to migrate from the depre
 * [⚖️ Step 5: Finalize Permissions](#️-step-5-finalize-permissions)
 * [🚀 Step 6: Service Configuration](#-step-6-service-configuration)
 * [🏁 Step 7: Post-Migration Steps](#-step-7-post-migration-steps)
+* [🔄 Maintenance & Updates](#-maintenance--updates)
 
 ---
 
@@ -139,3 +140,46 @@ systemctl restart overseerr
    ```
 6. **Tailscale:** Connection will resume. Keep the old LXC off.
 7. **Cleanup:** Once stable, you can remove old data: `rm -rf /opt/overseerr_old`.
+
+---
+
+## 🔄 Maintenance & Updates
+
+To update Seerr in the future, use this automation script. **Note:** Increase LXC RAM to 8GB before running!
+
+1. **Create the script:** `nano /opt/overseerr/update.sh`
+2. **Paste the following content:**
+
+```bash
+#!/bin/bash
+# Path to your installation
+APP_DIR="/opt/overseerr"
+echo "--- Starting Seerr Update ---"
+cd $APP_DIR || exit
+
+# 1. Fetch latest stable code
+echo "1/4: Pulling latest code from GitHub (Main Branch)..."
+git fetch --all
+git checkout main
+git pull origin main
+
+# 2. Install dependencies
+echo "2/4: Installing dependencies..."
+CYPRESS_INSTALL_BINARY=0 pnpm install --frozen-lockfile
+
+# 3. Build the application
+echo "3/4: Starting build process (High RAM required)..."
+export NODE_OPTIONS="--max-old-space-size=4096"
+pnpm build
+
+# 4. Restart service
+echo "4/4: Restarting service..."
+systemctl restart overseerr
+
+echo "--- Update to $(git describe --tags) successful! ---"
+```
+
+3. **Make it executable:**
+```bash
+chmod +x /opt/overseerr/update.sh
+```
