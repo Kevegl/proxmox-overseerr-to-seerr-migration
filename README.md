@@ -179,7 +179,10 @@ systemctl restart overseerr
 echo "--- Update to $(git describe --tags) successful! ---"
 ```
 
-3. **Make it executable:**
+3. **Make it executable and run it:**
 ```bash
 chmod +x /opt/overseerr/update.sh
+
+# To update in the future, just run:
+/opt/overseerr/update.sh
 ```
