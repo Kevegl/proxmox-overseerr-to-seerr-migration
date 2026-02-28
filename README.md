@@ -1,5 +1,5 @@
 # 🚀 Overseerr to Seerr Migration Guide (Proxmox LXC)
-Last validated: February 27, 2026 | Node.js v22 | Seerr v3.1.0
+Last validated: February 28, 2026 | Node.js v22 | Seerr v3.1.0
 
 This guide provides a proven, step-by-step walkthrough to migrate from the deprecated **Overseerr** to its active fork **Seerr** within a Proxmox LXC environment.
 
@@ -7,6 +7,7 @@ This guide provides a proven, step-by-step walkthrough to migrate from the depre
 
 ## 📖 Table of Contents
 * [⚠️ Prerequisites](#️-prerequisites--troubleshooting)
+* [🔍 Step 0: Check for Automated Update](#-step-0-check-for-automated-update)
 * [🛠 Step 1: Prepare the LXC](#-step-1-prepare-the-lxc)
 * [⚙️ Step 2: System Setup](#️-step-2-system-setup)
 * [📦 Step 3: Migration & Data Transfer](#-step-3-migration--data-transfer)
@@ -25,6 +26,20 @@ The build process for Seerr is resource-heavy. Before starting, ensure your LXC 
 * **Disk Space:** Minimum **20GB** free space is highly recommended. (Build fails with `ERR_PNPM_ENOSPC` if space is insufficient).
 * **RAM (Build Phase):** Temporarily increase to **8GB (8192 MiB)** if your host system allows it. Minimum 4GB + Swap is required to avoid "Out of Memory" errors.
 * **Node.js:** Version **22.x** is required.
+
+---
+
+## 🔍 Step 0: Check for Automated Update
+
+Before performing a manual migration, check if your LXC helper script can handle the transition automatically.
+
+1. Open your LXC console.
+2. Run the following command:
+```bash
+update
+```
+3. **If the update completes and your Overseerr has successfully changed to Seerr:** Congratulations! You are done and **do not need the rest of this guide**.
+4. **If the update fails, stays on the old Overseerr version, or the command is not found:** Please proceed with **Step 1** to perform the manual migration.
 
 ---
 
@@ -59,11 +74,13 @@ npm install -g pnpm
 cd /opt
 mv overseerr overseerr_old
 
-# Clone the repository
+# Clone the repository and switch to stable main branch
 git clone https://github.com/seerr-team/seerr.git overseerr
+cd /opt/overseerr
+git checkout main
 
 # Copy your existing database and settings
-cp -r /opt/overseerr_old/config /opt/overseerr/
+cp -rp /opt/overseerr_old/config /opt/overseerr/
 ```
 
 ---
@@ -184,6 +201,6 @@ echo "--- Update to $(git describe --tags) successful! ---"
 # Make the script executable
 chmod +x /opt/overseerr/update.sh
 
-# To update in the future, just run:
+# Run the update (Remember to increase RAM first!)
 /opt/overseerr/update.sh
 ```
